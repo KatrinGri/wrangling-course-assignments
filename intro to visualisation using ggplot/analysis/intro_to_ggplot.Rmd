@@ -208,7 +208,8 @@ Create a similar plot for the AMP scores in `data_after_exclusions`.
 ggplot(data = data_after_exclusions,
        aes(x = amp_score )) +
       geom_histogram(binwidth = 0.1) +
-      scale_x_continuous(breaks = seq(0, 1, 0.1))
+      scale_x_continuous(breaks = seq(0, 1, 0.1))+
+      geom_vline(xintercept = mean(data_after_exclusions$amp_score), linetype = "dotted")
 
 
 ```
@@ -229,9 +230,7 @@ ggplot(data = data_after_exclusions,
                color = "#FF69B4",
                fill = "darkblue", 
                alpha = 0.3) +
-  # labeling of the axis points
-  scale_x_continuous(breaks = scales::breaks_pretty(n = 7),
-                     limits = c(1, 7)) +
+  scale_x_continuous(breaks = seq(0, 1, 0.1))
   theme_minimal()
 
 ```
@@ -245,6 +244,13 @@ Make a similar density plot for the AMP.
 - Name both axis names more clearly.  
 
 ```{r}
+ggplot(data = data_after_exclusions,
+       aes(x = amp_score)) +
+    geom_density(adjust = 1, # the degree of smoothing can be adjusted here 
+               color = "#FF69B4",
+               fill = "darkblue", 
+               alpha = 0.1) +
+  scale_x_continuous(breaks = seq(0, 1, 0.1))
 
 
 
@@ -304,7 +310,27 @@ Make a similar plot for the self-reports.
 - Use `coord_flip()` to swap the X and Y axes.
 
 ```{r}
+# create the summary values to be plotted
+summary_self_report <- data_after_exclusions %>% 
+  group_by(mean_self_report) %>% 
+  summarize(self_mean = mean(mean_self_report),
+            self_se = plotrix::std.error(mean_self_report))
 
+
+ggplot(data = summary_self_report, 
+       aes(x = gender, 
+           y = self_mean)) +
+  geom_col(fill = "#0b6623", # note that you can specify specific colors using hex codes or names
+           color = "black", 
+           width = 0.6) +
+  geom_errorbar(aes(ymin = self_mean - self_se, 
+                    ymax = self_mean + self_se), 
+                width = 0.1, 
+                color = "black") +
+  labs(title = "Bar Plot of with Standard Errors",
+       x = "Gender",
+       y = "Mean AMP score") +
+  theme_linedraw() 
 
 
 ```
